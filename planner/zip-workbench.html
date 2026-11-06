@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alpha 007 · ZIP Workbench</title>
+<style>
+:root{color-scheme:dark;font:15px/1.45 system-ui,sans-serif;color:#eaf4f7;background:#09141d}
+*{box-sizing:border-box}body{margin:0}header{background:#102838;border-bottom:2px solid #d9b676;padding:18px max(18px,calc((100vw - 1140px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px}
+h1{margin:0;font-size:clamp(22px,4vw,34px)}h2{margin:0 0 10px;font-size:19px}h3{margin:5px 0 12px}
+small,.muted{color:#9fbac8}.tag{color:#e4c783;font-weight:800;letter-spacing:.13em;font-size:12px}a{color:#f0d69a}
+main{max-width:1140px;padding:22px 18px 60px;margin:auto}.box{background:#122735;border:1px solid #365b6d;border-radius:10px;padding:18px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid .box{margin:0}.wide{grid-column:1/-1}
+label{display:block;font-weight:700;margin:12px 0 5px}input,textarea,button,select{font:inherit;border-radius:6px}input,textarea{width:100%;padding:10px;background:#061824;color:#fff;border:1px solid #5b7381}input[type=file]{padding:9px}textarea{resize:vertical;min-height:85px}
+button{background:#e0be78;border:0;color:#112433;font-weight:800;cursor:pointer;padding:10px 14px;margin:4px 5px 4px 0}button:disabled{opacity:.45;cursor:not-allowed}button.secondary{background:#295269;color:#fff}
+:focus-visible{outline:3px solid #f1cf82;outline-offset:3px}
+.status{border-left:5px solid #728a98;padding:8px 12px;background:#0b1a26}.status.pass{border-color:#72c6a0}.status.fail{border-color:#ef8d91}.status.warn{border-color:#eac677}
+code,.mono{font-family:ui-monospace,Consolas,monospace;overflow-wrap:anywhere}.detail{display:grid;grid-template-columns:160px 1fr;gap:6px;margin:12px 0}.detail dt{color:#9fbac8}.detail dd{margin:0;overflow-wrap:anywhere}ul{padding-left:22px;max-height:240px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:8px;border-bottom:1px solid #2d4b5d;overflow-wrap:anywhere}th{color:#e0be78}#entries{max-height:290px;overflow:auto}
+.warn{color:#f1cb7d}.failtext{color:#f4a9ad}.passtext{color:#83d4b5}.pill{display:inline-block;background:#234253;padding:4px 8px;border-radius:5px;font-size:12px}
+footer{text-align:center;color:#9fbac8;padding:18px}@media(max-width:750px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.detail{grid-template-columns:100px 1fr}header{display:block}}
+</style></head><body>
+<header><div><div class="tag">PHANTOMTRONICS · ALPHA PRIME 007 · WARDEN OF ZIPS</div><h1>🐈‍⬛ ZIP Workbench</h1><div class="muted">A practical 999-status tool · local inspection only</div></div><a href="wardens-desk.html">← Warden's Desk</a></header>
+<main>
+<section class="box"><h2>Trust boundary</h2><p style="margin:0">Files stay inside your browser; this page makes no network requests. SHA-256 is computed over the <b>entire selected file</b>. ZIP structure inspection reads central-directory metadata only: it <b>does not decompress files, verify per-member CRCs, authenticate the source, or execute scripts</b>. Never treat a structural PASS as safe-to-execute approval.</p></section>
+<div class="grid">
+<section class="box"><h2>1 · File fingerprint</h2><label for="file">Select file to inspect</label><input id="file" type="file" accept=".zip,.json,.txt,*/*"><label for="expected">Expected SHA-256 (optional pinned value)</label><input id="expected" class="mono" maxlength="64" spellcheck="false" placeholder="64 hexadecimal characters">
+<button id="inspect">Inspect locally</button><button id="copy" class="secondary" disabled>Copy SHA-256</button>
+<p class="muted">File limit: 128 MiB per selection to avoid exhausting browser memory.</p>
+<div id="status" class="status" role="status" aria-live="polite">Choose a file and select Inspect.</div><dl id="facts" class="detail"></dl></section>
+<section class="box"><h2>2 · Compare a second file</h2><label for="file2">Optional comparison file</label><input id="file2" type="file" accept="*/*">
+<button id="compare" class="secondary">Hash & compare</button><p class="muted">Compares actual bytes through SHA-256, not just names or sizes. No server involved.</p><div id="comparison" class="status" role="status">No comparison yet.</div>
+<h3>Warden's notes</h3><label for="notes">Evidence / next step (kept only until the page closes)</label><textarea id="notes" placeholder="Why did I inspect this file? What remains to verify?"></textarea>
+<button id="export" class="secondary" disabled>Export evidence JSON</button></section>
+<section class="box wide"><h2>3 · ZIP structure & hazards</h2><div id="zipstatus" class="status">Only ZIP-format files will be parsed. Unsupported ZIP64 and multi-disk formats are reported, not silently accepted.</div>
+<div id="hazards"></div><div id="entries"></div></section>
+</div>
+</main><footer>Warden's Workbench · No uploads · No hidden writes · No execution · No claims beyond evidence</footer>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const LIMIT=128*1024*1024, decoder=new TextDecoder('utf-8');
+let last=null;
+function status(id,msg,mode=''){const e=$(id);e.textContent=msg;e.className='status '+mode}
+function fact(k,v){let a=document.createElement('dt'),b=document.createElement('dd');a.textContent=k;b.textContent=String(v);$('facts').append(a,b)}
+const hex=buf=>Array.from(new Uint8Array(buf),b=>b.toString(16).padStart(2,'0')).join('');
+async function sha(bytes){if(!crypto.subtle)throw Error('Web Crypto unavailable: use HTTPS or localhost');return hex(await crypto.subtle.digest('SHA-256',bytes))}
+function escName(s){return s.replace(/[\x00-\x1f\x7f]/g,'?')}
+function inspectZip(buf){
+ const v=new DataView(buf),n=v.byteLength;
+ if(n<22)throw Error('Not a ZIP: too short');
+ let end=-1;for(let i=n-22;i>=Math.max(0,n-65557);i--){if(v.getUint32(i,true)===0x06054b50 && i+22+v.getUint16(i+20,true)===n){end=i;break}}
+ if(end<0)throw Error('No valid ZIP end-of-central-directory record');
+ const disk=v.getUint16(end+4,true),cdDisk=v.getUint16(end+6,true),diskCount=v.getUint16(end+8,true),count=v.getUint16(end+10,true);
+ let cdSize=v.getUint32(end+12,true),cdOff=v.getUint32(end+16,true);
+ if(disk||cdDisk||diskCount!==count)throw Error('Multi-disk ZIP not supported');
+ if(count===65535||cdSize===0xffffffff||cdOff===0xffffffff)throw Error('ZIP64 format not supported; no structural PASS');
+ if(cdOff+cdSize>end)throw Error('Central-directory bounds invalid');
+ const out=[],issues=[],seen=new Set();let p=cdOff,uncompTotal=0,compTotal=0;
+ for(let i=0;i<count;i++){
+  if(p+46>n || v.getUint32(p,true)!==0x02014b50)throw Error('Broken central-directory entry '+i);
+  let flags=v.getUint16(p+8,true),method=v.getUint16(p+10,true),crc=v.getUint32(p+16,true),cs=v.getUint32(p+20,true),us=v.getUint32(p+24,true);
+  let nl=v.getUint16(p+28,true),ex=v.getUint16(p+30,true),cl=v.getUint16(p+32,true),ext=v.getUint32(p+38,true),localOff=v.getUint32(p+42,true);
+  if(p+46+nl+ex+cl>n)throw Error('Filename/extra/comment extends out of bounds');
+  let name=escName(decoder.decode(new Uint8Array(buf,p+46,nl))),norm=name.replace(/\\/g,'/');
+  let parts=norm.split('/'),bad=norm.startsWith('/')||/^[A-Za-z]:/.test(norm)||parts.includes('..')||parts.includes('.')||norm.includes('\0');
+  let key=norm.toLowerCase(),mode=(ext>>>16)&0xffff;
+  if(bad)issues.push('Unsafe ZIP path: '+name);
+  if(seen.has(key))issues.push('Duplicate or case-colliding path: '+name);
+  if(flags&1)issues.push('Encrypted member: '+name);
+  if(method!==0&&method!==8)issues.push('Unsupported compression method '+method+': '+name);
+  if((mode&0xf000)===0xa000)issues.push('Symbolic-link entry: '+name);
+  if(cs===0&&us>0||cs>0&&us/cs>1000)issues.push('Extreme expansion ratio: '+name);
+  if(localOff+30>cdOff||v.getUint32(localOff,true)!==0x04034b50)issues.push('Local header invalid: '+name);
+  seen.add(key);uncompTotal+=us;compTotal+=cs;
+  out.push({name,method,compressed:cs,uncompressed:us,crc32:crc.toString(16).padStart(8,'0'),flags});
+  p+=46+nl+ex+cl;
+ }
+ if(p!==cdOff+cdSize)issues.push('Central directory contains extra/unparsed bytes');
+ if(uncompTotal>1024*1024*1024)issues.push('Declared uncompressed total exceeds 1 GiB');
+ if(out.length===0)issues.push('ZIP has no file entries');
+ return {entries:out,issues,compressedBytes:compTotal,uncompressedBytes:uncompTotal,centralDirectoryParsed:true,memberDataVerified:false};
+}
+function showZip(z){
+ $('hazards').replaceChildren();$('entries').replaceChildren();
+ if(!z)return;
+ const h=document.createElement('p');h.textContent=z.issues.length?'Warnings ('+z.issues.length+'): '+z.issues.slice(0,12).join(' · '):'No structural hazards detected. Member data and CRCs remain UNVERIFIED.';
+ h.className=z.issues.length?'warn':'passtext';$('hazards').append(h);
+ let sum=document.createElement('p');sum.textContent=z.entries.length+' entries · '+z.compressedBytes.toLocaleString()+' compressed bytes · '+z.uncompressedBytes.toLocaleString()+' declared uncompressed bytes';$('entries').append(sum);
+ let t=document.createElement('table'),head=document.createElement('thead');head.innerHTML='<tr><th>Member</th><th>Method</th><th>Stored</th><th>Expanded</th><th>CRC32 metadata</th></tr>';t.append(head);
+ let body=document.createElement('tbody');for(let x of z.entries.slice(0,100)){let tr=document.createElement('tr');for(let val of [x.name,x.method,x.compressed,x.uncompressed,x.crc32]){let td=document.createElement('td');td.textContent=String(val);tr.append(td)}body.append(tr)}t.append(body);$('entries').append(t);
+ if(z.entries.length>100){let more=document.createElement('p');more.textContent='Only the first 100 entries are displayed; all entries were checked for structural flags.';$('entries').append(more)}
+}
+$('inspect').onclick=async()=>{
+ const f=$('file').files[0];last=null;$('copy').disabled=true;$('export').disabled=true;$('facts').replaceChildren();$('hazards').replaceChildren();$('entries').replaceChildren();
+ if(!f)return status('status','Choose a file first.','warn');
+ if(f.size>LIMIT)return status('status','STOP: file exceeds 128 MiB browser processing limit.','fail');
+ const pin=$('expected').value.trim().toLowerCase();if(pin&&!/^[a-f0-9]{64}$/.test(pin))return status('status','STOP: expected SHA-256 must contain 64 hex characters.','fail');
+ try{
+  status('status','Calculating actual SHA-256...','warn');let buf=await f.arrayBuffer(),sum=await sha(buf),z=null,parseError='';
+  if(f.name.toLowerCase().endsWith('.zip')||(buf.byteLength>=4&&new DataView(buf).getUint32(0,true)===0x04034b50)){
+   try{z=inspectZip(buf);status('zipstatus',z.issues.length?'ZIP parsed with '+z.issues.length+' warning(s). Member bytes are NOT verified.':'ZIP central directory parsed. Member bytes and CRCs NOT verified.',z.issues.length?'warn':'pass')}
+   catch(e){parseError=String(e.message);status('zipstatus','ZIP parsing FAILED: '+parseError,'fail')}
+  }else status('zipstatus','Not identified as ZIP; no ZIP inspection performed.','');
+  last={schema:'alpha007.zip-workbench.v1',inspectedAt:new Date().toISOString(),file:{name:f.name,size:f.size,sha256:sum},pin:pin||null,pinMatch:pin?sum===pin:null,zip:z,zipError:parseError||null};
+  fact('File',f.name);fact('Size',f.size.toLocaleString()+' bytes');fact('SHA-256',sum);fact('Pinned match',pin?(sum===pin?'MATCH':'MISMATCH · STOP'):'No pin provided');
+  status('status',pin?(sum===pin?'SHA-256 PIN MATCH.': 'STOP: SHA-256 PIN MISMATCH.'): 'SHA-256 computed. No trusted pin supplied.',pin?(sum===pin?'pass':'fail'):'warn');
+  showZip(z);$('copy').disabled=false;$('export').disabled=false;
+ }catch(e){status('status','Inspection failed: '+String(e.message),'fail')}
+};
+$('compare').onclick=async()=>{
+ const f=$('file2').files[0];if(!f)return status('comparison','Choose a comparison file.','warn');
+ if(f.size>LIMIT)return status('comparison','STOP: comparison file exceeds 128 MiB.','fail');
+ try{let s=await sha(await f.arrayBuffer());if(last)status('comparison',(s===last.file.sha256?'BYTE-HASH MATCH: ':'DIFFERENT FILE: ')+f.name+' · '+s,s===last.file.sha256?'pass':'warn');
+ else status('comparison',f.name+' SHA-256: '+s+'. Inspect primary file to compare.','warn');
+ }catch(e){status('comparison',String(e.message),'fail')}
+};
+$('copy').onclick=async()=>{if(last){try{await navigator.clipboard.writeText(last.file.sha256);status('status','SHA-256 copied.','pass')}catch{status('status','Clipboard blocked; select and copy SHA-256 shown above.','warn')}}};
+$('export').onclick=()=>{if(!last)return;const evidence={...last,notes:$('notes').value};let a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(evidence,null,2)],{type:'application/json'}));a.href=url;a.download='A007-ZIP-EVIDENCE-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)};
+})();
+</script></body></html>
