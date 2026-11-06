@@ -1,118 +1,90 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Alpha 007 · ZIP Workbench</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alpha 007 // ZIP Workbench // C.Link</title>
 <style>
-:root{color-scheme:dark;font:15px/1.45 system-ui,sans-serif;color:#eaf4f7;background:#09141d}
-*{box-sizing:border-box}body{margin:0}header{background:#102838;border-bottom:2px solid #d9b676;padding:18px max(18px,calc((100vw - 1140px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px}
-h1{margin:0;font-size:clamp(22px,4vw,34px)}h2{margin:0 0 10px;font-size:19px}h3{margin:5px 0 12px}
-small,.muted{color:#9fbac8}.tag{color:#e4c783;font-weight:800;letter-spacing:.13em;font-size:12px}a{color:#f0d69a}
-main{max-width:1140px;padding:22px 18px 60px;margin:auto}.box{background:#122735;border:1px solid #365b6d;border-radius:10px;padding:18px;margin-bottom:16px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid .box{margin:0}.wide{grid-column:1/-1}
-label{display:block;font-weight:700;margin:12px 0 5px}input,textarea,button,select{font:inherit;border-radius:6px}input,textarea{width:100%;padding:10px;background:#061824;color:#fff;border:1px solid #5b7381}input[type=file]{padding:9px}textarea{resize:vertical;min-height:85px}
-button{background:#e0be78;border:0;color:#112433;font-weight:800;cursor:pointer;padding:10px 14px;margin:4px 5px 4px 0}button:disabled{opacity:.45;cursor:not-allowed}button.secondary{background:#295269;color:#fff}
-:focus-visible{outline:3px solid #f1cf82;outline-offset:3px}
-.status{border-left:5px solid #728a98;padding:8px 12px;background:#0b1a26}.status.pass{border-color:#72c6a0}.status.fail{border-color:#ef8d91}.status.warn{border-color:#eac677}
-code,.mono{font-family:ui-monospace,Consolas,monospace;overflow-wrap:anywhere}.detail{display:grid;grid-template-columns:160px 1fr;gap:6px;margin:12px 0}.detail dt{color:#9fbac8}.detail dd{margin:0;overflow-wrap:anywhere}ul{padding-left:22px;max-height:240px;overflow:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:8px;border-bottom:1px solid #2d4b5d;overflow-wrap:anywhere}th{color:#e0be78}#entries{max-height:290px;overflow:auto}
-.warn{color:#f1cb7d}.failtext{color:#f4a9ad}.passtext{color:#83d4b5}.pill{display:inline-block;background:#234253;padding:4px 8px;border-radius:5px;font-size:12px}
-footer{text-align:center;color:#9fbac8;padding:18px}@media(max-width:750px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.detail{grid-template-columns:100px 1fr}header{display:block}}
+:root{color-scheme:dark;--ink:#d8edeb;--muted:#8daaa7;--black:#03090c;--shell:#0b1920;--panel:#0a2027;--edge:#4a797b;--gold:#ffcb68;--mint:#70efc4;--red:#ff848b;--ui:clamp(12px,1.05vw,16px);font:var(--ui)/1.35 "DejaVu Sans Mono",Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none}body{background:var(--black);color:var(--ink)}button,input,textarea{font:inherit}button{cursor:pointer;color:var(--ink);background:#193c43;border:1px solid var(--edge);padding:.55em .85em;text-transform:uppercase;font-weight:bold;box-shadow:inset 2px 2px #31545a}button:hover,button:focus-visible{color:var(--gold);border-color:var(--gold)}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}button:disabled{opacity:.32;cursor:default}input,textarea{color:#e8f3ed;background:#041117;border:1px solid #587477;width:100%;padding:.65em}input[type=file]{font-size:.89em}label{display:block;color:var(--gold);font-weight:bold;margin:0 0 .45em}h1,h2,h3,p{margin:0}p{line-height:1.45}small{font-size:.83em}.caps{letter-spacing:.13em;text-transform:uppercase}.muted{color:var(--muted)}.gold{color:var(--gold)}.mint{color:var(--mint)}.warn{color:var(--red)}.mono{font-family:inherit;overflow-wrap:anywhere}.shell{height:100dvh;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;border:3px solid #395e61;box-shadow:inset 0 0 0 2px #050b0e}.top{min-height:65px;background:#11282e;border-bottom:3px double var(--gold);display:flex;align-items:center;justify-content:space-between;padding:9px clamp(12px,2vw,28px);gap:12px}.title strong{display:block;font-size:clamp(19px,2vw,29px);letter-spacing:.02em}.title small{display:block;color:var(--gold);letter-spacing:.19em}.lamps{display:flex;align-items:center;gap:10px;white-space:nowrap}.lamp{width:11px;height:11px;border-radius:50%;background:var(--mint);box-shadow:0 0 7px var(--mint)}.tiny{font-size:11px}.bar{display:flex;align-items:stretch;gap:5px;background:#06151a;border-bottom:1px solid var(--edge);padding:6px clamp(10px,2vw,28px);position:relative;z-index:4}.bar button{min-height:39px;min-width:100px}.bar button.active{background:var(--gold);color:#08181b;box-shadow:inset -3px -3px #a57b35}.bar .space{flex:1}.bar a{align-self:center;color:var(--gold);text-decoration:none;border:1px solid var(--edge);padding:10px}.bar a:hover{background:#25444a}.viewport{min-height:0;position:relative;padding:clamp(10px,1.6vw,22px);background:repeating-linear-gradient(0deg,transparent,transparent 27px,#0a181a 28px)}.page{position:absolute;inset:clamp(10px,1.6vw,22px);display:none;min-height:0}.page.active{display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px}.pagehead{background:#10282d;border:1px solid var(--edge);border-left:6px solid var(--gold);padding:9px 13px;display:flex;justify-content:space-between;align-items:center;gap:12px}.pagehead h2{font-size:clamp(15px,1.4vw,20px)}.columns{min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}.group{min-width:0;min-height:0;border:1px solid var(--edge);padding:clamp(10px,1.4vw,20px);background:var(--panel);display:flex;flex-direction:column;gap:10px}.group h3{font-size:1em;color:var(--mint);border-bottom:1px dashed #4f7772;padding-bottom:8px}.buttonrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.primary{background:var(--gold);color:#071514;border-color:#ffedbd;box-shadow:inset -3px -3px #ad7c38}.readout{border-left:4px solid #658587;background:#041117;padding:10px;overflow-wrap:anywhere;min-height:44px}.readout.pass{border-color:var(--mint)}.readout.fail{border-color:var(--red)}.readout.warn{border-color:var(--gold)}.facts{display:grid;grid-template-columns:100px minmax(0,1fr);align-content:start;gap:10px 8px;margin:0;font-size:.85em}.facts dt{color:var(--gold)}.facts dd{margin:0;overflow-wrap:anywhere}.screen{background:#030e13;border:1px solid #42686b;padding:12px;flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}.screen strong{color:var(--mint)}.indicator{font-size:clamp(23px,3vw,45px);font-weight:900;letter-spacing:.07em;color:var(--gold)}.key{display:inline-block;border:1px solid var(--edge);padding:1px 5px;color:var(--muted);font-size:11px}.ledstrip{display:flex;gap:14px;align-items:center}.ledstrip b{color:var(--mint)}.tabhint{color:var(--muted);font-size:.83em}.tablewrap{flex:1;min-height:0;overflow:hidden}.entries{width:100%;table-layout:fixed;border-collapse:collapse;font-size:clamp(10px,.83vw,13px)}th,td{padding:7px;text-align:left;border-bottom:1px solid #29535b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}th{color:var(--gold);background:#14353c}th:first-child{width:43%}.pager{display:flex;align-items:center;justify-content:space-between;gap:9px}.pager button{min-width:90px}.hazard{color:var(--gold);max-height:4.3em;overflow:hidden;overflow-wrap:anywhere;font-size:.9em}.flyout{display:none;position:absolute;top:100%;right:12px;width:min(440px,calc(100vw - 25px));background:#112e33;border:2px solid var(--gold);box-shadow:8px 10px 0 #000a;padding:15px;z-index:12}.flyout.open{display:block}.flyout h3{color:var(--gold);margin-bottom:9px}.flyout p{margin:8px 0}.flyout button{margin-top:8px}.foot{min-height:30px;background:#132f35;border-top:2px solid var(--edge);display:flex;align-items:center;justify-content:space-between;padding:5px 14px;gap:12px;font-size:11px;white-space:nowrap}.foot span{overflow:hidden;text-overflow:ellipsis}textarea{resize:none;min-height:70px;flex:1}.rule{height:1px;background:var(--edge)}@media(max-height:690px){.top{min-height:51px;padding:6px 16px}.bar{padding:3px 10px}.bar button{min-height:32px}.group{gap:6px;padding:9px}.screen{gap:6px}.page.active{gap:7px}.pagehead{padding:5px 10px}th,td{padding:4px}textarea{min-height:52px}}@media(max-width:780px){.title small{letter-spacing:0}.top{min-height:58px}.lamps{display:none}.bar{gap:3px;padding:4px}.bar button{min-width:0;flex:1;padding:.5em .25em;font-size:11px}.bar a{display:none}.viewport{padding:6px}.page{inset:6px}.columns{grid-template-columns:1fr 1fr;gap:6px}.group{padding:7px;gap:7px}.facts{grid-template-columns:1fr;gap:3px;font-size:11px}.group h3{font-size:12px}.pagehead .tabhint{display:none}}@media(max-width:540px){.columns{grid-template-columns:1fr;grid-template-rows:1fr 1fr}.pagehead{font-size:11px}.screen{padding:7px}.indicator{font-size:20px}.tabhint{display:none}.foot{font-size:9px}.group{font-size:11px}}
 </style></head><body>
-<header><div><div class="tag">PHANTOMTRONICS · ALPHA PRIME 007 · WARDEN OF ZIPS</div><h1>🐈‍⬛ ZIP Workbench</h1><div class="muted">A practical 999-status tool · local inspection only</div></div><a href="wardens-desk.html">← Warden's Desk</a></header>
-<main>
-<section class="box"><h2>Trust boundary</h2><p style="margin:0">Files stay inside your browser; this page makes no network requests. SHA-256 is computed over the <b>entire selected file</b>. ZIP structure inspection reads central-directory metadata only: it <b>does not decompress files, verify per-member CRCs, authenticate the source, or execute scripts</b>. Never treat a structural PASS as safe-to-execute approval.</p></section>
-<div class="grid">
-<section class="box"><h2>1 · File fingerprint</h2><label for="file">Select file to inspect</label><input id="file" type="file" accept=".zip,.json,.txt,*/*"><label for="expected">Expected SHA-256 (optional pinned value)</label><input id="expected" class="mono" maxlength="64" spellcheck="false" placeholder="64 hexadecimal characters">
-<button id="inspect">Inspect locally</button><button id="copy" class="secondary" disabled>Copy SHA-256</button>
-<p class="muted">File limit: 128 MiB per selection to avoid exhausting browser memory.</p>
-<div id="status" class="status" role="status" aria-live="polite">Choose a file and select Inspect.</div><dl id="facts" class="detail"></dl></section>
-<section class="box"><h2>2 · Compare a second file</h2><label for="file2">Optional comparison file</label><input id="file2" type="file" accept="*/*">
-<button id="compare" class="secondary">Hash & compare</button><p class="muted">Compares actual bytes through SHA-256, not just names or sizes. No server involved.</p><div id="comparison" class="status" role="status">No comparison yet.</div>
-<h3>Warden's notes</h3><label for="notes">Evidence / next step (kept only until the page closes)</label><textarea id="notes" placeholder="Why did I inspect this file? What remains to verify?"></textarea>
-<button id="export" class="secondary" disabled>Export evidence JSON</button></section>
-<section class="box wide"><h2>3 · ZIP structure & hazards</h2><div id="zipstatus" class="status">Only ZIP-format files will be parsed. Unsupported ZIP64 and multi-disk formats are reported, not silently accepted.</div>
-<div id="hazards"></div><div id="entries"></div></section>
+<div class="shell">
+<header class="top"><div class="title"><small>PHANTOMTRONICS / C.LINK · ALPHA PRIME 007</small><strong>▣ ZIP WORKBENCH <span class="gold">/ 358</span></strong></div><div class="lamps"><span class="lamp"></span><span class="caps tiny mint">LOCAL ONLY</span><span class="key">NO EXECUTION</span></div></header>
+<nav class="bar" aria-label="Workbench panels"><button data-page="fingerprint" class="active">01 / SCAN</button><button data-page="compare">02 / COMPARE</button><button data-page="directory">03 / ZIP DIR</button><button data-page="evidence">04 / EVIDENCE</button><span class="space"></span><button data-flyout="help" aria-expanded="false">? HELP ▾</button><a href="wardens-desk.html">DESK ↗</a>
+<div class="flyout" id="help" role="dialog" aria-label="Help flyout"><h3>WARDEN OPERATING INSTRUCTIONS</h3><p>1. Select a file in SCAN. Calculate the real SHA-256.</p><p>2. Add a <b>trusted, pre-existing</b> SHA-256 pin before inspection for an authenticated comparison.</p><p>3. ZIP DIR examines metadata and flags suspicious paths, duplicates and unsupported formats. It does <b>NOT</b> verify member CRCs or execute files.</p><p>4. Export evidence via EVIDENCE. Data remains in this browser.</p><p class="gold">KEYS: ALT+1–4 switch tabs · ESC closes flyout</p><button data-close>✕ CLOSE</button></div></nav>
+<main class="viewport">
+<section class="page active" id="fingerprint"><div class="pagehead"><h2>01 ▸ FILE FINGERPRINT</h2><span class="tabhint">ACTUAL BYTES · SHA-256</span></div><div class="columns"><div class="group"><h3>INPUT / TRUSTED PIN</h3><label for="file">FILE TO INSPECT</label><input id="file" type="file"><label for="expected">EXPECTED SHA-256 · OPTIONAL</label><input id="expected" class="mono" spellcheck="false" maxlength="64" placeholder="64 hexadecimal characters"><div class="buttonrow"><button class="primary" id="inspect">▶ INSPECT FILE</button><button id="copy" disabled>COPY HASH</button></div><div class="tabhint">128 MiB browser memory limit. This program never uploads your file.</div></div><div class="group"><h3>VERIFICATION CONSOLE</h3><div id="status" class="readout" role="status" aria-live="polite">Awaiting file input.</div><div class="screen"><div class="indicator" id="verdict">STANDBY</div><dl id="facts" class="facts"></dl></div></div></div></section>
+<section class="page" id="compare"><div class="pagehead"><h2>02 ▸ FILE COMPARISON</h2><span class="tabhint">SHA-256 · TWO FILES</span></div><div class="columns"><div class="group"><h3>SECONDARY FILE</h3><p class="muted">First select and inspect the reference file under <b>01 / SCAN</b>.</p><label for="file2">FILE TO COMPARE AGAINST SCANNED FILE</label><input id="file2" type="file"><div class="buttonrow"><button id="compare" class="primary">▶ HASH & COMPARE</button></div><p class="tabhint">Matching hashes provide strong byte-equality evidence; they do not establish who authored a file.</p></div><div class="group"><h3>COMPARISON RESULT</h3><div id="comparison" class="readout" role="status">Awaiting comparison.</div><div class="screen"><div class="indicator">COMPARE</div><p id="compareReference" class="muted">Reference: no file scanned</p></div></div></div></section>
+<section class="page" id="directory"><div class="pagehead"><h2>03 ▸ ZIP DIRECTORY INSPECTION</h2><span class="tabhint">METADATA ONLY · PAGED OUTPUT</span></div><div class="columns" style="grid-template-columns:minmax(0,2fr) minmax(220px,1fr)"><div class="group"><h3>MEMBER TABLE</h3><div class="tablewrap"><table class="entries"><thead><tr><th>FILENAME</th><th>METHOD</th><th>STORED</th><th>UNPACKED</th><th>CRC32*</th></tr></thead><tbody id="entries"></tbody></table></div><div class="pager"><button id="prev">◂ PREV</button><span id="pageCount" class="muted">0 / 0</span><button id="next">NEXT ▸</button></div></div><div class="group"><h3>STRUCTURAL FINDINGS</h3><div id="zipstatus" class="readout">Run SCAN on a ZIP file first.</div><div class="screen"><b class="gold">HAZARD FLAGS</b><div id="hazards" class="hazard">No ZIP inspected.</div><div class="rule"></div><p class="tabhint">*CRC32 values are read from the ZIP header. The file contents have NOT been decompressed or checked against CRCs.</p><p id="zipTotals" class="muted">No entries.</p></div></div></div></section>
+<section class="page" id="evidence"><div class="pagehead"><h2>04 ▸ EVIDENCE & HANDOFF</h2><span class="tabhint">LOCAL JSON · NO CLOUD WRITE</span></div><div class="columns"><div class="group"><h3>WARDEN'S LOG</h3><label for="notes">NOTES / UNRESOLVED QUESTIONS</label><textarea id="notes" placeholder="What was checked? Where did the trusted pin come from? What remains unverified?"></textarea><div class="buttonrow"><button id="export" disabled class="primary">↓ EXPORT EVIDENCE JSON</button></div><p class="tabhint">Notes stay in page memory until you leave or close this tab.</p></div><div class="group"><h3>TRUST BOUNDARY</h3><div class="screen"><div class="mint">✓ FULL-FILE HASH</div><p class="muted">Cryptographic SHA-256 over bytes selected in this browser.</p><div class="gold">△ STRUCTURAL SCAN</div><p class="muted">ZIP central directory, filename hazards and flags only.</p><div class="warn">✕ NOT VERIFIED HERE</div><p class="muted">Member CRC, trusted signature, repository deployment, machine installation, or execution safety.</p></div></div></div></section>
+</main><footer class="foot"><span>ALPHA 007 // WARDEN OF ZIPS // <span class="mint">NO UPLOAD</span> // NO SUDO</span><span id="footerStatus">STANDBY · ALT+1–4</span></footer>
 </div>
-</main><footer>Warden's Workbench · No uploads · No hidden writes · No execution · No claims beyond evidence</footer>
 <script>
-(()=>{'use strict';
-const $=id=>document.getElementById(id);
-const LIMIT=128*1024*1024, decoder=new TextDecoder('utf-8');
-let last=null;
-function status(id,msg,mode=''){const e=$(id);e.textContent=msg;e.className='status '+mode}
-function fact(k,v){let a=document.createElement('dt'),b=document.createElement('dd');a.textContent=k;b.textContent=String(v);$('facts').append(a,b)}
-const hex=buf=>Array.from(new Uint8Array(buf),b=>b.toString(16).padStart(2,'0')).join('');
-async function sha(bytes){if(!crypto.subtle)throw Error('Web Crypto unavailable: use HTTPS or localhost');return hex(await crypto.subtle.digest('SHA-256',bytes))}
-function escName(s){return s.replace(/[\x00-\x1f\x7f]/g,'?')}
-function inspectZip(buf){
- const v=new DataView(buf),n=v.byteLength;
- if(n<22)throw Error('Not a ZIP: too short');
- let end=-1;for(let i=n-22;i>=Math.max(0,n-65557);i--){if(v.getUint32(i,true)===0x06054b50 && i+22+v.getUint16(i+20,true)===n){end=i;break}}
- if(end<0)throw Error('No valid ZIP end-of-central-directory record');
- const disk=v.getUint16(end+4,true),cdDisk=v.getUint16(end+6,true),diskCount=v.getUint16(end+8,true),count=v.getUint16(end+10,true);
- let cdSize=v.getUint32(end+12,true),cdOff=v.getUint32(end+16,true);
- if(disk||cdDisk||diskCount!==count)throw Error('Multi-disk ZIP not supported');
- if(count===65535||cdSize===0xffffffff||cdOff===0xffffffff)throw Error('ZIP64 format not supported; no structural PASS');
- if(cdOff+cdSize>end)throw Error('Central-directory bounds invalid');
- const out=[],issues=[],seen=new Set();let p=cdOff,uncompTotal=0,compTotal=0;
- for(let i=0;i<count;i++){
-  if(p+46>n || v.getUint32(p,true)!==0x02014b50)throw Error('Broken central-directory entry '+i);
-  let flags=v.getUint16(p+8,true),method=v.getUint16(p+10,true),crc=v.getUint32(p+16,true),cs=v.getUint32(p+20,true),us=v.getUint32(p+24,true);
-  let nl=v.getUint16(p+28,true),ex=v.getUint16(p+30,true),cl=v.getUint16(p+32,true),ext=v.getUint32(p+38,true),localOff=v.getUint32(p+42,true);
-  if(p+46+nl+ex+cl>n)throw Error('Filename/extra/comment extends out of bounds');
-  let name=escName(decoder.decode(new Uint8Array(buf,p+46,nl))),norm=name.replace(/\\/g,'/');
-  let parts=norm.split('/'),bad=norm.startsWith('/')||/^[A-Za-z]:/.test(norm)||parts.includes('..')||parts.includes('.')||norm.includes('\0');
-  let key=norm.toLowerCase(),mode=(ext>>>16)&0xffff;
-  if(bad)issues.push('Unsafe ZIP path: '+name);
-  if(seen.has(key))issues.push('Duplicate or case-colliding path: '+name);
-  if(flags&1)issues.push('Encrypted member: '+name);
-  if(method!==0&&method!==8)issues.push('Unsupported compression method '+method+': '+name);
-  if((mode&0xf000)===0xa000)issues.push('Symbolic-link entry: '+name);
-  if(cs===0&&us>0||cs>0&&us/cs>1000)issues.push('Extreme expansion ratio: '+name);
-  if(localOff+30>cdOff||v.getUint32(localOff,true)!==0x04034b50)issues.push('Local header invalid: '+name);
-  seen.add(key);uncompTotal+=us;compTotal+=cs;
-  out.push({name,method,compressed:cs,uncompressed:us,crc32:crc.toString(16).padStart(8,'0'),flags});
-  p+=46+nl+ex+cl;
- }
- if(p!==cdOff+cdSize)issues.push('Central directory contains extra/unparsed bytes');
- if(uncompTotal>1024*1024*1024)issues.push('Declared uncompressed total exceeds 1 GiB');
- if(out.length===0)issues.push('ZIP has no file entries');
- return {entries:out,issues,compressedBytes:compTotal,uncompressedBytes:uncompTotal,centralDirectoryParsed:true,memberDataVerified:false};
+(()=>{'use strict';const $=id=>document.getElementById(id),LIMIT=128*1024*1024,decoder=new TextDecoder('utf-8');let last=null,zip=null,page=0;const PAGE=7;
+function label(id,msg,mode=''){const e=$(id);e.textContent=msg;e.className='readout '+mode}
+function showPage(id){document.querySelectorAll('[data-page]').forEach(b=>{const yes=b.dataset.page===id;b.classList.toggle('active',yes);b.setAttribute('aria-current',yes?'page':'false')});document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));closeFlyout()}
+function closeFlyout(){document.querySelectorAll('.flyout').forEach(f=>f.classList.remove('open'));document.querySelectorAll('[data-flyout]').forEach(b=>b.setAttribute('aria-expanded','false'))}
+document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+document.querySelectorAll('[data-flyout]').forEach(b=>b.onclick=()=>{const f=$(b.dataset.flyout),opening=!f.classList.contains('open');closeFlyout();f.classList.toggle('open',opening);b.setAttribute('aria-expanded',String(opening))});
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeFlyout);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeFlyout();if(e.altKey&&/^[1-4]$/.test(e.key)){e.preventDefault();showPage(['fingerprint','compare','directory','evidence'][Number(e.key)-1])}});
+function hex(b){return Array.from(new Uint8Array(b),v=>v.toString(16).padStart(2,'0')).join('')}
+async function sha(bytes){if(!crypto.subtle)throw Error('WebCrypto requires HTTPS or localhost');return hex(await crypto.subtle.digest('SHA-256',bytes))}
+const cell=(row,value)=>{const c=document.createElement('td');c.textContent=String(value);c.title=String(value);row.append(c)};
+function draw(){
+ const el=$('entries');el.replaceChildren();const arr=zip?.entries||[],total=Math.ceil(arr.length/PAGE);page=Math.min(page,Math.max(0,total-1));
+ for(const x of arr.slice(page*PAGE,(page+1)*PAGE)){const tr=document.createElement('tr');for(const v of [x.name,x.method,x.compressed,x.uncompressed,x.crc32])cell(tr,v);el.append(tr)}
+ $('pageCount').textContent=(total?page+1:0)+' / '+total+' · '+arr.length+' ENTRIES';$('prev').disabled=page===0;$('next').disabled=page>=total-1;
+ if(!arr.length){const r=document.createElement('tr');const c=document.createElement('td');c.colSpan=5;c.textContent='NO ZIP DIRECTORY ENTRIES';r.append(c);el.append(r)}
+ $('zipTotals').textContent=zip?zip.compressedBytes.toLocaleString()+' stored · '+zip.uncompressedBytes.toLocaleString()+' declared bytes uncompressed':'No entries.';
+ $('hazards').textContent=zip?(zip.issues.length?zip.issues.slice(0,3).join(' | ')+(zip.issues.length>3?' | +'+(zip.issues.length-3)+' more':''):'No structural hazards detected; contents UNVERIFIED.'):'No ZIP inspected.';
 }
-function showZip(z){
- $('hazards').replaceChildren();$('entries').replaceChildren();
- if(!z)return;
- const h=document.createElement('p');h.textContent=z.issues.length?'Warnings ('+z.issues.length+'): '+z.issues.slice(0,12).join(' · '):'No structural hazards detected. Member data and CRCs remain UNVERIFIED.';
- h.className=z.issues.length?'warn':'passtext';$('hazards').append(h);
- let sum=document.createElement('p');sum.textContent=z.entries.length+' entries · '+z.compressedBytes.toLocaleString()+' compressed bytes · '+z.uncompressedBytes.toLocaleString()+' declared uncompressed bytes';$('entries').append(sum);
- let t=document.createElement('table'),head=document.createElement('thead');head.innerHTML='<tr><th>Member</th><th>Method</th><th>Stored</th><th>Expanded</th><th>CRC32 metadata</th></tr>';t.append(head);
- let body=document.createElement('tbody');for(let x of z.entries.slice(0,100)){let tr=document.createElement('tr');for(let val of [x.name,x.method,x.compressed,x.uncompressed,x.crc32]){let td=document.createElement('td');td.textContent=String(val);tr.append(td)}body.append(tr)}t.append(body);$('entries').append(t);
- if(z.entries.length>100){let more=document.createElement('p');more.textContent='Only the first 100 entries are displayed; all entries were checked for structural flags.';$('entries').append(more)}
+$('prev').onclick=()=>{page=Math.max(0,page-1);draw()};$('next').onclick=()=>{page++;draw()};
+function inspectZip(buf){
+ const v=new DataView(buf),n=v.byteLength;if(n<22)throw Error('Not a ZIP: too short');
+ let end=-1;for(let i=n-22;i>=Math.max(0,n-65557);i--)if(v.getUint32(i,true)===0x06054b50&&i+22+v.getUint16(i+20,true)===n){end=i;break}
+ if(end<0)throw Error('No valid ZIP end-of-central-directory record');
+ const disk=v.getUint16(end+4,true),cdDisk=v.getUint16(end+6,true),onDisk=v.getUint16(end+8,true),count=v.getUint16(end+10,true);let size=v.getUint32(end+12,true),off=v.getUint32(end+16,true);
+ if(disk||cdDisk||onDisk!==count)throw Error('Multi-disk ZIP not supported');
+ if(count===65535||size===0xffffffff||off===0xffffffff)throw Error('ZIP64 unsupported: no structural PASS');
+ if(off+size>end)throw Error('Central directory outside file');
+ const out=[],issues=[],seen=new Set();let p=off,unpacked=0,compressed=0;
+ for(let i=0;i<count;i++){
+ if(p+46>n||v.getUint32(p,true)!==0x02014b50)throw Error('Invalid central directory record '+i);
+ const flags=v.getUint16(p+8,true),method=v.getUint16(p+10,true),crc=v.getUint32(p+16,true),cs=v.getUint32(p+20,true),us=v.getUint32(p+24,true),nl=v.getUint16(p+28,true),ex=v.getUint16(p+30,true),cl=v.getUint16(p+32,true),ext=v.getUint32(p+38,true),lo=v.getUint32(p+42,true);
+ if(p+46+nl+ex+cl>n)throw Error('Directory field exceeds file bounds');
+ const name=decoder.decode(new Uint8Array(buf,p+46,nl)).replace(/[\x00-\x1f\x7f]/g,'?'),norm=name.replace(/\\/g,'/'),parts=norm.split('/'),key=norm.toLowerCase(),mode=ext>>>16;
+ if(norm.startsWith('/')||/^[a-zA-Z]:/.test(norm)||parts.includes('..')||parts.includes('.'))issues.push('Unsafe path: '+name);
+ if(seen.has(key))issues.push('Duplicate or case collision: '+name);
+ if(flags&1)issues.push('Encrypted member: '+name);
+ if(method!==0&&method!==8)issues.push('Unsupported compression method '+method+': '+name);
+ if((mode&0xf000)===0xa000)issues.push('Symbolic link: '+name);
+ if(cs===0&&us>0||cs>0&&us/cs>1000)issues.push('Extreme compression ratio: '+name);
+ if(lo+30>off||v.getUint32(lo,true)!==0x04034b50)issues.push('Invalid local header: '+name);
+ seen.add(key);unpacked+=us;compressed+=cs;out.push({name,method,compressed:cs,uncompressed:us,crc32:crc.toString(16).padStart(8,'0'),flags});
+ p+=46+nl+ex+cl;
+ }if(p!==off+size)issues.push('Unparsed central-directory data');if(unpacked>1073741824)issues.push('Declared total expands beyond 1 GiB');if(!out.length)issues.push('ZIP contains no members');
+ return{entries:out,issues,compressedBytes:compressed,uncompressedBytes:unpacked,centralDirectoryParsed:true,memberDataVerified:false};
 }
 $('inspect').onclick=async()=>{
- const f=$('file').files[0];last=null;$('copy').disabled=true;$('export').disabled=true;$('facts').replaceChildren();$('hazards').replaceChildren();$('entries').replaceChildren();
- if(!f)return status('status','Choose a file first.','warn');
- if(f.size>LIMIT)return status('status','STOP: file exceeds 128 MiB browser processing limit.','fail');
- const pin=$('expected').value.trim().toLowerCase();if(pin&&!/^[a-f0-9]{64}$/.test(pin))return status('status','STOP: expected SHA-256 must contain 64 hex characters.','fail');
+ const f=$('file').files[0],pin=$('expected').value.trim().toLowerCase();last=null;zip=null;page=0;$('copy').disabled=true;$('export').disabled=true;$('facts').replaceChildren();$('verdict').textContent='WORKING';label('status','Preparing inspection...','warn');
+ if(!f){label('status','STOP: Select a file.','warn');$('verdict').textContent='STANDBY';return}
+ if(f.size>LIMIT){label('status','STOP: File exceeds 128 MiB limit.','fail');$('verdict').textContent='REJECTED';return}
+ if(pin&&!/^[a-f0-9]{64}$/.test(pin)){label('status','STOP: Expected SHA-256 must be exactly 64 hexadecimal characters.','fail');$('verdict').textContent='REJECTED';return}
  try{
-  status('status','Calculating actual SHA-256...','warn');let buf=await f.arrayBuffer(),sum=await sha(buf),z=null,parseError='';
-  if(f.name.toLowerCase().endsWith('.zip')||(buf.byteLength>=4&&new DataView(buf).getUint32(0,true)===0x04034b50)){
-   try{z=inspectZip(buf);status('zipstatus',z.issues.length?'ZIP parsed with '+z.issues.length+' warning(s). Member bytes are NOT verified.':'ZIP central directory parsed. Member bytes and CRCs NOT verified.',z.issues.length?'warn':'pass')}
-   catch(e){parseError=String(e.message);status('zipstatus','ZIP parsing FAILED: '+parseError,'fail')}
-  }else status('zipstatus','Not identified as ZIP; no ZIP inspection performed.','');
-  last={schema:'alpha007.zip-workbench.v1',inspectedAt:new Date().toISOString(),file:{name:f.name,size:f.size,sha256:sum},pin:pin||null,pinMatch:pin?sum===pin:null,zip:z,zipError:parseError||null};
-  fact('File',f.name);fact('Size',f.size.toLocaleString()+' bytes');fact('SHA-256',sum);fact('Pinned match',pin?(sum===pin?'MATCH':'MISMATCH · STOP'):'No pin provided');
-  status('status',pin?(sum===pin?'SHA-256 PIN MATCH.': 'STOP: SHA-256 PIN MISMATCH.'): 'SHA-256 computed. No trusted pin supplied.',pin?(sum===pin?'pass':'fail'):'warn');
-  showZip(z);$('copy').disabled=false;$('export').disabled=false;
- }catch(e){status('status','Inspection failed: '+String(e.message),'fail')}
+ const buf=await f.arrayBuffer(),sum=await sha(buf);let zipError=null;
+ const isZip=f.name.toLowerCase().endsWith('.zip')||(buf.byteLength>=4&&new DataView(buf).getUint32(0,true)===0x04034b50);
+ if(isZip){try{zip=inspectZip(buf);label('zipstatus',zip.issues.length?'ZIP metadata parsed with '+zip.issues.length+' warning(s). CRC not checked.':'ZIP metadata parsed. Member CRCs not checked.',zip.issues.length?'warn':'pass')}catch(e){zipError=String(e.message);label('zipstatus','ZIP structural parse FAILED: '+zipError,'fail')}}
+ else label('zipstatus','This file does not look like a ZIP.','warn');
+ draw();
+ const pinMatch=pin?sum===pin:null;
+ last={schema:'alpha007.zip-workbench.v2',inspectedAt:new Date().toISOString(),file:{name:f.name,size:f.size,sha256:sum},pin:pin||null,pinMatch,zip,zipError,trustBoundary:'Full-file SHA256 only; ZIP member CRC not verified'};
+ const facts=$('facts');for(const [k,val] of [['FILE',f.name],['BYTES',f.size.toLocaleString()],['SHA-256',sum],['PIN',pin?pinMatch?'MATCH':'MISMATCH':'NOT PROVIDED']]){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=k;dd.textContent=val;facts.append(dt,dd)}
+ $('verdict').textContent=pin?(pinMatch?'PIN MATCH':'PIN MISMATCH'):'HASH READY';label('status',pin?(pinMatch?'Trusted pin matches actual SHA-256.':'STOP: Trusted pin mismatch.'):'SHA-256 calculated. No trusted pin supplied.',pin?(pinMatch?'pass':'fail'):'warn');
+ $('compareReference').textContent='Reference: '+f.name+' · '+sum;$('footerStatus').textContent='SCANNED / '+f.name;
+ $('copy').disabled=false;$('export').disabled=false;
+ }catch(e){label('status','INSPECTION ERROR: '+String(e.message),'fail');$('verdict').textContent='ERROR'}
 };
-$('compare').onclick=async()=>{
- const f=$('file2').files[0];if(!f)return status('comparison','Choose a comparison file.','warn');
- if(f.size>LIMIT)return status('comparison','STOP: comparison file exceeds 128 MiB.','fail');
- try{let s=await sha(await f.arrayBuffer());if(last)status('comparison',(s===last.file.sha256?'BYTE-HASH MATCH: ':'DIFFERENT FILE: ')+f.name+' · '+s,s===last.file.sha256?'pass':'warn');
- else status('comparison',f.name+' SHA-256: '+s+'. Inspect primary file to compare.','warn');
- }catch(e){status('comparison',String(e.message),'fail')}
-};
-$('copy').onclick=async()=>{if(last){try{await navigator.clipboard.writeText(last.file.sha256);status('status','SHA-256 copied.','pass')}catch{status('status','Clipboard blocked; select and copy SHA-256 shown above.','warn')}}};
-$('export').onclick=()=>{if(!last)return;const evidence={...last,notes:$('notes').value};let a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(evidence,null,2)],{type:'application/json'}));a.href=url;a.download='A007-ZIP-EVIDENCE-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)};
+$('compare').onclick=async()=>{const f=$('file2').files[0];if(!f){label('comparison','Select a comparison file.','warn');return}if(f.size>LIMIT){label('comparison','STOP: 128 MiB limit.','fail');return}try{const s=await sha(await f.arrayBuffer());if(!last)label('comparison','Secondary SHA-256: '+s+'. Scan a reference file first.','warn');else label('comparison',(s===last.file.sha256?'SHA-256 MATCH · ':'SHA-256 DIFFER · ')+f.name+' : '+s,s===last.file.sha256?'pass':'fail')}catch(e){label('comparison',String(e.message),'fail')}};
+$('copy').onclick=async()=>{if(!last)return;try{await navigator.clipboard.writeText(last.file.sha256);label('status','SHA-256 copied to clipboard.','pass')}catch{label('status','Clipboard unavailable; manually copy the displayed SHA-256.','warn')}};
+$('export').onclick=()=>{if(!last)return;const evidence={...last,notes:$('notes').value};const url=URL.createObjectURL(new Blob([JSON.stringify(evidence,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='A007-EVIDENCE-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)};
+draw();
 })();
 </script></body></html>
